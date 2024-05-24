@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    container_name: online-store-postgres
+    image: postgres:16.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=dev
+      - POSTGRES_PASSWORD=dev_P4ss
+      - POSTGRES_DB=online_store
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+      container_name: online-store-redis
+      image: redis:alpine3.19
+      restart: always
+      ports:
+        - '6379:6379'
+      command: redis-server --save 20 1 --loglevel warning
+      volumes: 
+        - cache_data:/data
+
+volumes:
+  postgres_data:
+  cache_data:
