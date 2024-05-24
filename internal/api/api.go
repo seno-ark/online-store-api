@@ -34,10 +34,15 @@ func (h *ApiHandler) Routes(apiV1 fiber.Router) {
 	apiV1.Get("/health", h.healthCheck)
 
 	users := apiV1.Group("users")
-
 	users.Post("/register", h.Register)
 	users.Post("/login", h.Login)
 	users.Get("/me", h.AuthMiddleware, h.GetLoggedInUser)
+
+	categories := apiV1.Group("categories")
+	categories.Get("/", h.GetListCategory)
+
+	products := apiV1.Group("products")
+	products.Get("/category/:category_id", h.GetListProductByCategory)
 }
 
 func (h *ApiHandler) healthCheck(c *fiber.Ctx) error {

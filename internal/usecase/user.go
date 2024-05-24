@@ -8,8 +8,8 @@ import (
 	"online-store/pkg/utils"
 )
 
-func (u *Usecase) Register(ctx context.Context, payload entity.InUserRegister) (*entity.User, error) {
-	_, err := u.repo.GetUserByEmail(ctx, payload.Email)
+func (u *Usecase) Register(ctx context.Context, arg entity.InUserRegister) (*entity.User, error) {
+	_, err := u.repo.GetUserByEmail(ctx, arg.Email)
 	if err == nil {
 		return nil, utils.NewErrInvalidRequest("Email has already registered")
 	}
@@ -17,7 +17,7 @@ func (u *Usecase) Register(ctx context.Context, payload entity.InUserRegister) (
 		return nil, err
 	}
 
-	hashedPassword, err := utils.HashPassword(payload.Password)
+	hashedPassword, err := utils.HashPassword(arg.Password)
 	if err != nil {
 		return nil, utils.NewErrInternalServer("Failed to register user")
 	}
@@ -26,9 +26,9 @@ func (u *Usecase) Register(ctx context.Context, payload entity.InUserRegister) (
 		var errTx error
 
 		_, errTx = rtx.CreateUser(ctx, entity.User{
-			Email:    payload.Email,
+			Email:    arg.Email,
 			Password: hashedPassword,
-			FullName: payload.FullName,
+			FullName: arg.FullName,
 		})
 		if errTx != nil {
 			return errTx
@@ -40,11 +40,11 @@ func (u *Usecase) Register(ctx context.Context, payload entity.InUserRegister) (
 		return nil, err
 	}
 
-	return u.repo.GetUserByEmail(ctx, payload.Email)
+	return u.repo.GetUserByEmail(ctx, arg.Email)
 }
 
-func (u *Usecase) Login(ctx context.Context, payload entity.InUserLogin) (*entity.User, error) {
-	user, err := u.repo.GetUserByEmail(ctx, payload.Email)
+func (u *Usecase) Login(ctx context.Context, arg entity.InUserLogin) (*entity.User, error) {
+	user, err := u.repo.GetUserByEmail(ctx, arg.Email)
 	if err != nil {
 		if errors.Is(err, utils.ErrNotFound) {
 			return nil, utils.NewErrUnauthorized("Invalid email or password")
@@ -52,7 +52,7 @@ func (u *Usecase) Login(ctx context.Context, payload entity.InUserLogin) (*entit
 		return nil, err
 	}
 
-	err = utils.CheckPassword(payload.Password, user.Password)
+	err = utils.CheckPassword(arg.Password, user.Password)
 	if err != nil {
 		return nil, utils.NewErrUnauthorized("Invalid email or password")
 	}

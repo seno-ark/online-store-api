@@ -21,7 +21,7 @@ func (r *Repository) CreateUser(ctx context.Context, arg entity.User) (string, e
 	err := row.Scan(&id)
 	if err != nil {
 		slog.Error(
-			"Failed to CreateUser",
+			"Failed to CreateUser Scan",
 			slog.Any("err", err),
 			slog.Any("arg", arg),
 		)
@@ -52,7 +52,7 @@ func (r *Repository) GetUser(ctx context.Context, id string) (*entity.User, erro
 			return nil, utils.NewErrNotFound("User not found")
 		}
 		slog.Error(
-			"Failed to CreateUser",
+			"Failed to GetUser Scan",
 			slog.Any("err", err),
 			slog.Any("id", id),
 		)
@@ -83,7 +83,7 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*entity.
 			return nil, utils.NewErrNotFound("User not found")
 		}
 		slog.Error(
-			"Failed to CreateUser",
+			"Failed to GetUserByEmail Scan",
 			slog.Any("err", err),
 			slog.Any("email", email),
 		)
