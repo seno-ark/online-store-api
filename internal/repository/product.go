@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"online-store/internal/entity"
@@ -56,12 +58,16 @@ func (r *Repository) UpdateProductStock(ctx context.Context, id string, stockCha
 	return nil
 }
 
-func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.Product, error) {
-	var i entity.Product
+func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.OutGetProduct, error) {
+	var i entity.OutGetProduct
 
-	query := `SELECT id, category_id, name, description, price, stock, created_at, updated_at 
+	query := `SELECT 
+	products.id, products.category_id, products.name, products.description, 
+	products.price, products.stock, products.created_at, products.updated_at,
+	categories.name AS category_name
 	FROM products
-	WHERE id = $1
+	INNER JOIN categories ON categories.id = products.category_id
+	WHERE products.id = $1
 	LIMIT 1`
 
 	row := r.dbtx.QueryRowContext(ctx, query, id)
@@ -74,8 +80,13 @@ func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.Product
 		&i.Stock,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CategoryName,
 	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, utils.NewErrNotFound("Product not found")
+		}
+
 		slog.Error(
 			"Failed to GetProduct Scan",
 			slog.Any("err", err),
@@ -87,20 +98,23 @@ func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.Product
 	return &i, nil
 }
 
-func (r *Repository) GetListProduct(ctx context.Context, arg entity.InGetListProduct) ([]entity.Product, int64, error) {
+func (r *Repository) GetListProduct(ctx context.Context, arg entity.InGetListProduct) ([]entity.OutGetProduct, int64, error) {
 	var count int64
-	items := []entity.Product{}
+	items := []entity.OutGetProduct{}
 
 	queryCount := `SELECT COUNT(id) FROM products`
 
-	queryData := `SELECT id, category_id, name, description, price, stock, created_at, updated_at 
-	FROM products
+	queryData := `SELECT products.id, products.category_id, products.name, 
+	products.description, products.price, products.stock, products.created_at, products.updated_at,
+	categories.name AS category_name 
+	FROM products 
+	INNER JOIN categories ON categories.id = products.category_id
 	`
 
 	queryArgs := []any{}
 	if arg.CategoryID != "" {
 		queryArgs = append(queryArgs, arg.CategoryID)
-		whereQuery := " WHERE category_id = $1"
+		whereQuery := " WHERE products.category_id = $1"
 
 		queryCount += whereQuery
 		queryData += whereQuery
@@ -122,7 +136,7 @@ func (r *Repository) GetListProduct(ctx context.Context, arg entity.InGetListPro
 	}
 
 	queryArgs = append(queryArgs, arg.Limit)
-	queryData += fmt.Sprintf(" ORDER BY updated_at DESC LIMIT $%d", len(queryArgs))
+	queryData += fmt.Sprintf(" ORDER BY products.updated_at DESC LIMIT $%d", len(queryArgs))
 
 	queryArgs = append(queryArgs, arg.Offset)
 	queryData += fmt.Sprintf(" OFFSET $%d", len(queryArgs))
@@ -139,7 +153,7 @@ func (r *Repository) GetListProduct(ctx context.Context, arg entity.InGetListPro
 	defer rows.Close()
 
 	for rows.Next() {
-		var i entity.Product
+		var i entity.OutGetProduct
 
 		if err := rows.Scan(
 			&i.ID,
@@ -150,6 +164,7 @@ func (r *Repository) GetListProduct(ctx context.Context, arg entity.InGetListPro
 			&i.Stock,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CategoryName,
 		); err != nil {
 			slog.Error(
 				"Failed to GetListProduct rows.Next",

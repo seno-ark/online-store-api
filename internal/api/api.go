@@ -43,6 +43,12 @@ func (h *ApiHandler) Routes(apiV1 fiber.Router) {
 
 	products := apiV1.Group("products")
 	products.Get("/category/:category_id", h.GetListProductByCategory)
+
+	carts := apiV1.Group("carts")
+	carts.Use(h.AuthMiddleware)
+	carts.Post("/", h.AddCartItem)
+	carts.Get("/", h.GetListCartItem)
+	carts.Delete("/:cart_id", h.DeleteCartItem)
 }
 
 func (h *ApiHandler) healthCheck(c *fiber.Ctx) error {
