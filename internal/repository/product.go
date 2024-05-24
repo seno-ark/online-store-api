@@ -58,16 +58,14 @@ func (r *Repository) UpdateProductStock(ctx context.Context, id string, stockCha
 	return nil
 }
 
-func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.OutGetProduct, error) {
-	var i entity.OutGetProduct
+func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.Product, error) {
+	var i entity.Product
 
 	query := `SELECT 
-	products.id, products.category_id, products.name, products.description, 
-	products.price, products.stock, products.created_at, products.updated_at,
-	categories.name AS category_name
+	id, category_id, name, description, 
+	price, stock, created_at, updated_at
 	FROM products
-	INNER JOIN categories ON categories.id = products.category_id
-	WHERE products.id = $1
+	WHERE id = $1
 	LIMIT 1`
 
 	row := r.dbtx.QueryRowContext(ctx, query, id)
@@ -80,7 +78,6 @@ func (r *Repository) GetProduct(ctx context.Context, id string) (*entity.OutGetP
 		&i.Stock,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.CategoryName,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

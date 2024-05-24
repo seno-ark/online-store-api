@@ -49,6 +49,12 @@ func (h *ApiHandler) Routes(apiV1 fiber.Router) {
 	carts.Post("/", h.AddCartItem)
 	carts.Get("/", h.GetListCartItem)
 	carts.Delete("/:cart_id", h.DeleteCartItem)
+
+	orders := apiV1.Group("orders")
+	orders.Use(h.AuthMiddleware)
+	orders.Post("/", h.CreateOrder)
+	orders.Get("/", h.GetListOrder)
+	orders.Get("/:order_id", h.GetOrder)
 }
 
 func (h *ApiHandler) healthCheck(c *fiber.Ctx) error {
