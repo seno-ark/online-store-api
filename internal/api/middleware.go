@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *ApiHandler) AuthMiddleware(c *fiber.Ctx) error {
+func (h *ApiHandler) AuthBearerMiddleware(c *fiber.Ctx) error {
 	resp := utils.NewResponse()
 
 	authHeader := strings.Split(c.Get("Authorization", ""), " ")
@@ -32,6 +32,20 @@ func (h *ApiHandler) AuthMiddleware(c *fiber.Ctx) error {
 	}
 
 	c.Locals("claims", claims)
+
+	return c.Next()
+}
+
+func (h *ApiHandler) AuthApiKeyMiddleware(c *fiber.Ctx) error {
+	// dummy auth
+
+	resp := utils.NewResponse()
+
+	authKey := c.Get("X-API-KEY", "")
+	if authKey != h.conf.WebhookApiKey {
+		c.Status(http.StatusUnauthorized)
+		return c.JSON(resp.Set("Invalid API Key", nil))
+	}
 
 	return c.Next()
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"online-store/internal/entity"
 	"online-store/internal/repository"
+	"online-store/pkg/constant"
 	"online-store/pkg/utils"
 )
 
@@ -57,6 +58,18 @@ func (u *Usecase) CreateOrder(ctx context.Context, userID string, arg entity.InC
 			return errTx
 		}
 
+		// create order payment
+		_, errTx = rtx.CreateOrderPayment(ctx, entity.Payment{
+			OrderID:         orderID,
+			PaymentMethod:   arg.Payment.PaymentMethod,
+			PaymentProvider: arg.Payment.PaymentProvider,
+			BillAmount:      totalCost,
+			Status:          string(constant.PaymentStatusPending),
+		})
+		if errTx != nil {
+			return errTx
+		}
+
 		for _, item := range arg.Items {
 
 			// create order items
@@ -92,11 +105,11 @@ func (u *Usecase) CreateOrder(ctx context.Context, userID string, arg entity.InC
 		return nil, err
 	}
 
-	return u.repo.GetOrder(ctx, userID, orderID)
+	return u.repo.GetOrder(ctx, orderID)
 }
 
 func (u *Usecase) GetOrder(ctx context.Context, userID, orderID string) (*entity.Order, error) {
-	return u.repo.GetOrder(ctx, userID, orderID)
+	return u.repo.GetUserOrder(ctx, userID, orderID)
 }
 
 func (u *Usecase) GetListOrder(ctx context.Context, userID string, arg entity.InGetListOrder) ([]entity.Order, int64, error) {
@@ -104,7 +117,7 @@ func (u *Usecase) GetListOrder(ctx context.Context, userID string, arg entity.In
 }
 
 func (u *Usecase) GetListOrderItem(ctx context.Context, userID string, orderID string, arg entity.InGetListOrderItem) ([]entity.OutGetOrderItem, int64, error) {
-	_, err := u.repo.GetOrder(ctx, userID, orderID)
+	_, err := u.repo.GetUserOrder(ctx, userID, orderID)
 	if err != nil {
 		return nil, 0, err
 	}

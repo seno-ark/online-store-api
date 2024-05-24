@@ -15,10 +15,13 @@ func init() {
 }
 
 type Config struct {
-	AppName              string
-	Port                 string
+	AppName string
+	Port    string
+
 	AccessTokenSecretKey string
 	AccessTokenDuratin   int
+
+	WebhookApiKey string
 
 	Postgres
 	Redis
@@ -45,6 +48,7 @@ func GetConfig() *Config {
 		Port:                 getStr("PORT"),
 		AccessTokenSecretKey: getStr("ACCESS_TOKEN_SECRET_KEY"),
 		AccessTokenDuratin:   getInt("ACCESS_TOKEN_DURATION"),
+		WebhookApiKey:        getStr("WEBHOOK_API_KEY"),
 		Postgres: Postgres{
 			Host: getStr("POSTGRES_HOST"),
 			Port: getStr("POSTGRES_PORT"),

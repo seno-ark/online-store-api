@@ -20,7 +20,7 @@ func (r *Repository) CreateOrder(ctx context.Context, arg entity.Order) (string,
 
 	row := r.dbtx.QueryRowContext(ctx, query,
 		arg.UserID,
-		constant.OrderTypeCreated,
+		constant.OrderStatusPaymentPending,
 		arg.OtherCost,
 		arg.TotalCost,
 		arg.ShipmentAddress,
@@ -38,7 +38,26 @@ func (r *Repository) CreateOrder(ctx context.Context, arg entity.Order) (string,
 	return id, nil
 }
 
-func (r *Repository) GetOrder(ctx context.Context, userID, id string) (*entity.Order, error) {
+func (r *Repository) UpdateOrderStatus(ctx context.Context, id string, status constant.OrderStatusType) error {
+	query := `UPDATE orders
+	SET status = $1
+	WHERE id = $2`
+
+	_, err := r.dbtx.ExecContext(ctx, query, status, id)
+	if err != nil {
+		slog.Error(
+			"Failed to UpdateOrderStatus ExecContext",
+			slog.Any("err", err),
+			slog.Any("id", id),
+			slog.Any("status", status),
+		)
+		return utils.NewErrInternalServer("Failed to update order status")
+	}
+
+	return nil
+}
+
+func (r *Repository) GetOrder(ctx context.Context, id string) (*entity.Order, error) {
 	query := `SELECT id, user_id, status, other_cost, total_cost, shipment_address, created_at, updated_at 
 	FROM orders
 	WHERE id = $1
@@ -64,6 +83,41 @@ func (r *Repository) GetOrder(ctx context.Context, userID, id string) (*entity.O
 
 		slog.Error(
 			"Failed to GetOrder",
+			slog.Any("err", err),
+			slog.Any("id", id),
+		)
+		return nil, utils.NewErrInternalServer("Failed to get order")
+	}
+
+	return &i, nil
+}
+
+func (r *Repository) GetUserOrder(ctx context.Context, userID, id string) (*entity.Order, error) {
+	query := `SELECT id, user_id, status, other_cost, total_cost, shipment_address, created_at, updated_at 
+	FROM orders
+	WHERE id = $1 AND user_id = $2
+	LIMIT 1`
+
+	row := r.dbtx.QueryRowContext(ctx, query, id, userID)
+	var i entity.Order
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Status,
+		&i.OtherCost,
+		&i.TotalCost,
+		&i.ShipmentAddress,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, utils.NewErrNotFound("Order not found")
+		}
+
+		slog.Error(
+			"Failed to GetUserOrder",
 			slog.Any("err", err),
 			slog.Any("id", id),
 			slog.Any("userID", userID),

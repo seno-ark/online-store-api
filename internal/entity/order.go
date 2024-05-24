@@ -23,14 +23,19 @@ type OrderItem struct {
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
 }
 
+type createOrderPayment struct {
+	PaymentMethod   string `json:"payment_method" validate:"required,oneof=bank_transfer"`
+	PaymentProvider string `json:"payment_provider" validate:"required,oneof=bri bni mandiri bca"`
+}
 type createOrderItem struct {
 	ProductID string `json:"product_id" validate:"required,uuid"`
 	Qty       int64  `json:"qty" validate:"required,min=1"`
 	Notes     string `json:"notes"`
 }
 type InCreateOrder struct {
-	ShipmentAddress string            `json:"shipment_address"`
-	Items           []createOrderItem `json:"items" validate:"required,max=5"`
+	ShipmentAddress string             `json:"shipment_address"`
+	Payment         createOrderPayment `json:"payment" validate:"required"`
+	Items           []createOrderItem  `json:"items" validate:"required,max=5"`
 }
 
 type InGetListOrder struct {

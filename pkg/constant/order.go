@@ -1,7 +1,12 @@
 package constant
 
-type OrderType string
+type OrderStatusType string
+type PaymentStatusType string
 
 var (
-	OrderTypeCreated = "created"
+	OrderStatusPaymentPending OrderStatusType = "payment_pending"
+	OrderStatusPaid           OrderStatusType = "paid"
+
+	PaymentStatusPending    PaymentStatusType = "pending"
+	PaymentStatusSettlement PaymentStatusType = "settlement"
 )

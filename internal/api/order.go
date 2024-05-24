@@ -32,6 +32,13 @@ func (h *ApiHandler) CreateOrder(c *fiber.Ctx) error {
 		return c.JSON(resp.Set("Invalid data", nil).AddErrValidation(errs))
 	}
 
+	err = h.validate.Struct(req.Payment)
+	if err != nil {
+		errs := utils.ParseValidatorErr(err)
+		c.SendStatus(http.StatusBadRequest)
+		return c.JSON(resp.Set("Invalid data", nil).AddErrValidation(errs))
+	}
+
 	for _, v := range req.Items {
 		err = h.validate.Struct(v)
 		if err != nil {
@@ -69,7 +76,7 @@ func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 		return c.JSON(resp.Set("Invalid data", nil).AddErrValidation(errs))
 	}
 
-	orderResult, err := h.ucase.GetOrder(ctx, claims.UserID, orderID)
+	orderDetail, err := h.ucase.GetOrder(ctx, claims.UserID, orderID)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
 		c.SendStatus(status)
@@ -86,9 +93,17 @@ func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 		return c.JSON(resp.Set(msg, nil))
 	}
 
+	paymentDetail, err := h.ucase.GetOrderPayment(ctx, orderID)
+	if err != nil {
+		status, msg := utils.ErrStatusCode(err)
+		c.SendStatus(status)
+		return c.JSON(resp.Set(msg, nil))
+	}
+
 	return c.JSON(resp.Set("success", fiber.Map{
-		"order": orderResult,
-		"items": orderItemList,
+		"order":   orderDetail,
+		"payment": paymentDetail,
+		"items":   orderItemList,
 	}))
 }
 
