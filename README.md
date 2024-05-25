@@ -43,6 +43,10 @@ PAYMENT STATUS:
 
 ## API Documentation
 
+All endpoints are available in swagger and postman collection:
+- Swagger: http://localhost:9000/v1/swagger/index.html
+- Postman: Synapsis_Online-Store-API.postman_collection.json
+
 ### User Register
 
 Create new account
