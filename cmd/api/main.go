@@ -17,6 +17,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
+// @title Online-Store API
+// @version 1.0
+// @description This is a simple api server to simulate customer order system
+
+// @host localhost:9000
+// @BasePath
 func main() {
 	conf := config.GetConfig()
 

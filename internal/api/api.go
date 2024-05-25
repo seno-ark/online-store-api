@@ -38,6 +38,8 @@ func (h *ApiHandler) Routes(apiV1 fiber.Router) {
 	apiV1.Get("/health", h.healthCheck)
 	apiV1.Get("/swagger/*", swagger.HandlerDefault)
 
+	apiV1.Get("/dummy-data", h.DummyProductAndCategory)
+
 	users := apiV1.Group("users")
 	users.Post("/register", h.Register)
 	users.Post("/login", h.Login)

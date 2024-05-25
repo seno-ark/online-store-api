@@ -47,3 +47,16 @@ func (h *ApiHandler) GetListProductByCategory(c *fiber.Ctx) error {
 	resp.AddMeta(page, count, total)
 	return c.JSON(resp.Set("success", results))
 }
+
+func (h *ApiHandler) DummyProductAndCategory(c *fiber.Ctx) error {
+	ctx := c.Context()
+	resp := utils.NewResponse()
+
+	err := h.ucase.DummyProductAndCategory(ctx)
+	if err != nil {
+		status, msg := utils.ErrStatusCode(err)
+		return c.Status(status).JSON(resp.Set(msg, nil))
+	}
+
+	return c.JSON(resp.Set("success", nil))
+}
