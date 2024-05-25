@@ -32,6 +32,7 @@ curl localhost:9000/v1/dummy-data
 ## Database Structure
 
 ERD
+![Online Store ERD](https://raw.githubusercontent.com/seno-ark/online-store-api/main/erd.png "ERD")
 
 ORDER STATUS:
 - payment_pending
@@ -45,7 +46,7 @@ PAYMENT STATUS:
 
 All endpoints are available in swagger and postman collection:
 - Swagger: http://localhost:9000/v1/swagger/index.html
-- Postman: Synapsis_Online-Store-API.postman_collection.json
+- Postman: [Synapsis_Online-Store-API.postman_collection.json](https://github.com/seno-ark/online-store-api/blob/main/Synapsis_Online-Store-API.postman_collection.json)
 
 ### User Register
 
@@ -163,7 +164,7 @@ Success Response (200):
 
 ### Get List Product By Category
 
-Get all cateogiries (paginated)
+Get list product by category (paginated)
 
 Endpoint: GET /v1/products/category/:category_id
 
@@ -198,6 +199,8 @@ Success Response (200):
 
 ### Add Cart Item
 
+Add product to chart
+
 Endpoint: POST /v1/carts
 
 Header:
@@ -228,6 +231,8 @@ Created Response (201):
 
 ### Remove Cart Item
 
+Remove product from cart
+
 Endpoint: DELETE /v1/carts/:cart_id
 
 Header:
@@ -242,6 +247,8 @@ Success Response (200):
 ```
 
 ### Get List Cart Item
+
+Get all cart items (paginated)
 
 Endpoint: GET /v1/carts
 
@@ -277,6 +284,8 @@ Success Response (200):
 ```
 
 ### Create Order
+
+Create new order
 
 Endpoint: POST /v1/orders
 
@@ -325,6 +334,8 @@ Created Response (201):
 
 ### Get List Order
 
+Get all created orders (paginated)
+
 Endpoint: GET /v1/orders
 
 Header:
@@ -355,6 +366,8 @@ Success Response (200):
 ```
 
 ### Get Order
+
+Get order detail
 
 Endpoint: GET /v1/orders/:order_id
 
@@ -423,7 +436,7 @@ Success Response (200):
 Endpoint: POST /v1/payments/webhook
 
 Header:
-- X-API-KEY: <API Key>
+- X-API-KEY: <api_key>
 
 Json Body:
 ```
