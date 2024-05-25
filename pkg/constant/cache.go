@@ -11,7 +11,7 @@ var (
 
 	CacheKeyListProductByCategory      string = "list_product:category_%s:limit_%d:offset_%d"
 	CacheKeyListProductByCategoryCount string = "list_product:category_%s:count"
-	CacheKeyListProductByCategoryAll   string = "list_product:category_%s:*"
+	CacheKeyListProductByCategoryAll   string = "list_product:*"
 
 	CacheKeyListUserCart      string = "list_cart:user_%s:limit_%d:offset_%d"
 	CacheKeyListUserCartCount string = "list_cart:user_%s:count"

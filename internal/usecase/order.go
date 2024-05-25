@@ -108,6 +108,10 @@ func (u *Usecase) CreateOrder(ctx context.Context, userID string, arg entity.InC
 		return nil, err
 	}
 
+	_ = u.cache.Del(ctx, fmt.Sprintf(constant.CacheKeyListUserCartAll, userID))
+	_ = u.cache.Del(ctx, fmt.Sprintf(constant.CacheKeyListProductByCategoryAll))
+	_ = u.cache.Del(ctx, fmt.Sprintf(constant.CacheKeyListUserOrderAll, userID))
+
 	return u.repo.GetOrder(ctx, orderID)
 }
 
