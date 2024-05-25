@@ -2,6 +2,31 @@ version: '3.8'
 
 services:
 
+  go-api:
+    container_name: online-store-api
+    image: aminkamsena/online-store-go-api:latest
+    restart: always
+    ports:
+      - '9000:9000'
+    environment:
+      - APP_NAME=online-store
+      - PORT=9000
+      - ACCESS_TOKEN_SECRET_KEY=asdasdf
+      - ACCESS_TOKEN_DURATION=43200 # 12 hours
+      - WEBHOOK_API_KEY=ec5de1b7cc704d1ab40673cb0828d5b1
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=dev
+      - POSTGRES_PASS=dev_P4ss
+      - POSTGRES_DB=online_store
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6379
+      - REDIS_PASS=
+      - REDIS_DB=
+    depends_on:
+      - postgres
+      - redis
+
   postgres:
     container_name: online-store-postgres
     image: postgres:16.1-alpine
