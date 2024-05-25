@@ -75,7 +75,7 @@ func (r *Repository) UpdateOrderPayment(ctx context.Context, arg entity.Payment)
 func (r *Repository) GetOrderPayment(ctx context.Context, id string) (*entity.Payment, error) {
 	var i entity.Payment
 
-	query := `SELECT id, order_id, payment_method, payment_provider, bill_amount, paid_amount, status, transaction_id, paid_at, log, created_at, updated_at 
+	query := `SELECT id, order_id, payment_method, payment_provider, bill_amount, paid_amount, status, transaction_id, paid_at, created_at, updated_at 
 	FROM payments
 	WHERE order_id = $1
 	LIMIT 1`
@@ -91,7 +91,6 @@ func (r *Repository) GetOrderPayment(ctx context.Context, id string) (*entity.Pa
 		&i.Status,
 		&i.TransactionID,
 		&i.PaidAt,
-		&i.Log,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

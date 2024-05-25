@@ -9,6 +9,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Register create user handler
+// @Summary			Create User.
+// @Description		Create new User.
+// @Tags			Users
+// @Accept			json
+// @Produce			json
+// @Param 			json	body		entity.InUserRegister	true	"User data"
+// @Success			201		{object}	utils.Response
+// @Failure			400		{object}	utils.Response
+// @Failure			500		{object}	utils.Response
+// @Router	/v1/users/register [post]
 func (h *ApiHandler) Register(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -52,6 +63,17 @@ func (h *ApiHandler) Register(c *fiber.Ctx) error {
 	}))
 }
 
+// Login login handler
+// @Summary			User Login.
+// @Description		User Login.
+// @Tags			Users
+// @Accept			json
+// @Produce			json
+// @Param 			json	body		entity.InUserLogin	true	"Login data"
+// @Success			201		{object}	utils.Response
+// @Failure			400		{object}	utils.Response
+// @Failure			500		{object}	utils.Response
+// @Router	/v1/users/login [post]
 func (h *ApiHandler) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -90,6 +112,16 @@ func (h *ApiHandler) Login(c *fiber.Ctx) error {
 	}))
 }
 
+// GetLoggedInUser get active user handler
+// @Summary			Get Logged in user profile.
+// @Description		Get active user profile.
+// @Tags			Users
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Produce			json
+// @Success			200 			{object}		utils.Response
+// @Failure			404				{object}		utils.Response
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/users/me [get]
 func (h *ApiHandler) GetLoggedInUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()

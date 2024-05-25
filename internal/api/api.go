@@ -7,6 +7,10 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+
+	_ "online-store/internal/api/docs"
+
+	"github.com/gofiber/swagger"
 )
 
 type ApiHandler struct {
@@ -32,6 +36,7 @@ func NewApiHandler(
 
 func (h *ApiHandler) Routes(apiV1 fiber.Router) {
 	apiV1.Get("/health", h.healthCheck)
+	apiV1.Get("/swagger/*", swagger.HandlerDefault)
 
 	users := apiV1.Group("users")
 	users.Post("/register", h.Register)

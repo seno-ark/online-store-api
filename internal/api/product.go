@@ -8,6 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetListProductByCategory get list of products by a category handler
+// @Summary			Get list of Products by Category.
+// @Description		Get list of GetListProductByCategory.
+// @Tags			Products
+// @Produce			json
+// @Param			page			query			int	     false	"Pagination page number (default 1, max 500)"				example(1)
+// @Param			count			query			int	     false	"Pagination data limit  (default 10, max 100)"				example(10)
+// @Success			200 			{object}		utils.Response{data=[]entity.OutGetProduct}
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/products [get]
 func (h *ApiHandler) GetListProductByCategory(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()

@@ -8,6 +8,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// PaymentWebhook payment notification webhook handler
+// @Summary			Payment Webhook.
+// @Description		Payment Webhook from Payment Gateway.
+// @Tags			Payments
+// @Accept			json
+// @Produce			json
+// @Param			X-API-KEY	header	string	true	"API Key"
+// @Param 			json	body		entity.InPaymentWebHook	true	"Payment Webhook data"
+// @Success			201		{object}	utils.Response
+// @Failure			400		{object}	utils.Response
+// @Failure			500		{object}	utils.Response
+// @Router	/v1/payments [post]
 func (h *ApiHandler) PaymentWebhook(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()

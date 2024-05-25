@@ -14,8 +14,8 @@ type CartItem struct {
 }
 
 type InCreateCartItem struct {
-	ProductID string `json:"product_id" validate:"required,uuid"`
-	Notes     string `json:"notes"`
+	ProductID string `json:"product_id" validate:"required,uuid" example:"02a1a6a3-1c9c-4f46-ae18-162e2b0d7a9a"`
+	Notes     string `json:"notes" example:"Nggak pakai sambal"`
 }
 
 type InGetListCartItem struct {

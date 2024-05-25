@@ -9,6 +9,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// AddCartItem add product to cart handler
+// @Summary			Add Cart Item.
+// @Description		Add product to cart.
+// @Tags			Carts
+// @Accept			json
+// @Produce			json
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param 			json			body	entity.InCreateCartItem	true	"Cart Item data"
+// @Success			201		{object}	utils.Response{data=entity.CartItem}
+// @Failure			400		{object}	utils.Response
+// @Failure			500		{object}	utils.Response
+// @Router	/v1/carts [post]
 func (h *ApiHandler) AddCartItem(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -42,6 +54,17 @@ func (h *ApiHandler) AddCartItem(c *fiber.Ctx) error {
 	return c.JSON(resp.Set("success", result))
 }
 
+// DeleteCartItem delete product from cart handler
+// @Summary			Delete Cart Item.
+// @Description		Delete product from cart.
+// @Tags			Carts
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param			cart_id			path	string true		"Cart ID" example(02a1a6a3-1c9c-4f46-ae18-162e2b0d7a9a)
+// @Produce			json
+// @Success			200 			{object}		utils.Response
+// @Failure			404				{object}		utils.Response
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/carts/{cart_id} [delete]
 func (h *ApiHandler) DeleteCartItem(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -70,6 +93,17 @@ func (h *ApiHandler) DeleteCartItem(c *fiber.Ctx) error {
 	return c.JSON(resp.Set("success", nil))
 }
 
+// GetListCartItem get list of cart items handler
+// @Summary			Get list of Cart Items.
+// @Description		Get list of Cart Items.
+// @Tags			Carts
+// @Produce			json
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param			page			query			int	     false	"Pagination page number (default 1, max 500)"				example(1)
+// @Param			count			query			int	     false	"Pagination data limit  (default 10, max 100)"				example(10)
+// @Success			200 			{object}		utils.Response{data=[]entity.CartItem}
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/carts [get]
 func (h *ApiHandler) GetListCartItem(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()

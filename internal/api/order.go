@@ -9,6 +9,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// CreateOrder create order handler
+// @Summary			Create Order.
+// @Description		Create new Order.
+// @Tags			Orders
+// @Accept			json
+// @Produce			json
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param 			json	body		entity.InCreateOrder	true	"Order data"
+// @Success			201		{object}	utils.Response{data=entity.Order}
+// @Failure			400		{object}	utils.Response
+// @Failure			500		{object}	utils.Response
+// @Router	/v1/orders [post]
 func (h *ApiHandler) CreateOrder(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -58,6 +70,17 @@ func (h *ApiHandler) CreateOrder(c *fiber.Ctx) error {
 	return c.JSON(resp.Set("success", result))
 }
 
+// GetOrder get user order handler
+// @Summary			Get user Order.
+// @Description		Get user Order.
+// @Tags			Orders
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param			order_id		path			string	 true	"Order ID"
+// @Produce			json
+// @Success			200 			{object}		utils.Response{data=entity.Order}
+// @Failure			404				{object}		utils.Response
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/orders/{order_id} [get]
 func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()
@@ -107,6 +130,17 @@ func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 	}))
 }
 
+// GetListOrder get list of user orders handler
+// @Summary			Get list of user Orders.
+// @Description		Get list of user Orders..
+// @Tags			Orders
+// @Produce			json
+// @Param			Authorization	header	string	true	"Bearer token"
+// @Param			page			query			int	     false	"Pagination page number (default 1, max 500)"				example(1)
+// @Param			count			query			int	     false	"Pagination data limit  (default 10, max 100)"				example(10)
+// @Success			200 			{object}		utils.Response{data=[]entity.Order}
+// @Failure			500				{object}		utils.Response
+// @Router	/v1/orders [get]
 func (h *ApiHandler) GetListOrder(c *fiber.Ctx) error {
 	ctx := c.Context()
 	resp := utils.NewResponse()

@@ -1,0 +1,634 @@
+definitions:
+  entity.CartItem:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      product_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.Category:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.InCreateCartItem:
+    properties:
+      notes:
+        example: Nggak pakai sambal
+        type: string
+      product_id:
+        example: 02a1a6a3-1c9c-4f46-ae18-162e2b0d7a9a
+        type: string
+    required:
+    - product_id
+    type: object
+  entity.InCreateOrder:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/entity.createOrderItem'
+        maxItems: 5
+        type: array
+      payment:
+        $ref: '#/definitions/entity.createOrderPayment'
+      shipment_address:
+        type: string
+    required:
+    - items
+    - payment
+    type: object
+  entity.InPaymentWebHook:
+    properties:
+      payment_amount:
+        minimum: 1
+        type: integer
+      status:
+        type: string
+      transaction_details:
+        $ref: '#/definitions/entity.PaymentWebHookTransactionDetails'
+      transaction_id:
+        type: string
+      user_details:
+        $ref: '#/definitions/entity.PaymentWebHookUserDetails'
+    required:
+    - payment_amount
+    - status
+    - transaction_id
+    type: object
+  entity.InUserLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  entity.InUserRegister:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
+  entity.Order:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      other_cost:
+        type: integer
+      shipment_address:
+        type: string
+      status:
+        type: string
+      total_cost:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.OutGetProduct:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  entity.PaymentWebHookTransactionDetails:
+    properties:
+      gross_amount:
+        type: integer
+      order_id:
+        type: string
+    required:
+    - gross_amount
+    - order_id
+    type: object
+  entity.PaymentWebHookUserDetails:
+    properties:
+      email:
+        type: integer
+      full_name:
+        type: string
+    required:
+    - full_name
+    type: object
+  entity.createOrderItem:
+    properties:
+      notes:
+        type: string
+      product_id:
+        type: string
+      qty:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - qty
+    type: object
+  entity.createOrderPayment:
+    properties:
+      payment_method:
+        enum:
+        - bank_transfer
+        type: string
+      payment_provider:
+        enum:
+        - bri
+        - bni
+        - mandiri
+        - bca
+        type: string
+    required:
+    - payment_method
+    - payment_provider
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/utils.ResponseMeta'
+      validation_errors:
+        items:
+          type: string
+        type: array
+    type: object
+  utils.ResponseMeta:
+    properties:
+      count:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+host: localhost:9000
+info:
+  contact: {}
+  description: This is a simple api server to simulate customer order system
+  title: Online-Store API
+  version: "1.0"
+paths:
+  /v1/carts:
+    get:
+      description: Get list of Cart Items.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Pagination page number (default 1, max 500)
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: Pagination data limit  (default 10, max 100)
+        example: 10
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.CartItem'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get list of Cart Items.
+      tags:
+      - Carts
+    post:
+      consumes:
+      - application/json
+      description: Add product to cart.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Cart Item data
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InCreateCartItem'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.CartItem'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Add Cart Item.
+      tags:
+      - Carts
+  /v1/carts/{cart_id}:
+    delete:
+      description: Delete product from cart.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Cart ID
+        example: 02a1a6a3-1c9c-4f46-ae18-162e2b0d7a9a
+        in: path
+        name: cart_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Delete Cart Item.
+      tags:
+      - Carts
+  /v1/categories:
+    get:
+      description: Get list of Categories.
+      parameters:
+      - description: Pagination page number (default 1, max 500)
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: Pagination data limit  (default 10, max 100)
+        example: 10
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Category'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get list of Categories.
+      tags:
+      - Categories
+  /v1/orders:
+    get:
+      description: Get list of user Orders..
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Pagination page number (default 1, max 500)
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: Pagination data limit  (default 10, max 100)
+        example: 10
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Order'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get list of user Orders.
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Create new Order.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Order data
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InCreateOrder'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Order'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create Order.
+      tags:
+      - Orders
+  /v1/orders/{order_id}:
+    get:
+      description: Get user Order.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Order'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get user Order.
+      tags:
+      - Orders
+  /v1/payments:
+    post:
+      consumes:
+      - application/json
+      description: Payment Webhook from Payment Gateway.
+      parameters:
+      - description: API Key
+        in: header
+        name: X-API-KEY
+        required: true
+        type: string
+      - description: Payment Webhook data
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InPaymentWebHook'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Payment Webhook.
+      tags:
+      - Payments
+  /v1/products:
+    get:
+      description: Get list of GetListProductByCategory.
+      parameters:
+      - description: Pagination page number (default 1, max 500)
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: Pagination data limit  (default 10, max 100)
+        example: 10
+        in: query
+        name: count
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.OutGetProduct'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get list of Products by Category.
+      tags:
+      - Products
+  /v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: User Login.
+      parameters:
+      - description: Login data
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InUserLogin'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: User Login.
+      tags:
+      - Users
+  /v1/users/me:
+    get:
+      description: Get active user profile.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get Logged in user profile.
+      tags:
+      - Users
+  /v1/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Create new User.
+      parameters:
+      - description: User data
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/entity.InUserRegister'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create User.
+      tags:
+      - Users
+swagger: "2.0"
