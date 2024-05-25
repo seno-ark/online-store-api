@@ -16,7 +16,7 @@ import (
 // @Produce			json
 // @Param			X-API-KEY	header	string	true	"API Key"
 // @Param 			json	body		entity.InPaymentWebHook	true	"Payment Webhook data"
-// @Success			201		{object}	utils.Response
+// @Success			200		{object}	utils.Response
 // @Failure			400		{object}	utils.Response
 // @Failure			500		{object}	utils.Response
 // @Router	/v1/payments [post]
@@ -52,8 +52,7 @@ func (h *ApiHandler) PaymentWebhook(c *fiber.Ctx) error {
 	err = h.ucase.UpdateOrderPayment(ctx, *req)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	return c.JSON(resp.Set("success", nil))

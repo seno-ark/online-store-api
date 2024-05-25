@@ -40,18 +40,17 @@ func (h *ApiHandler) AddCartItem(c *fiber.Ctx) error {
 	err := h.validate.Struct(req)
 	if err != nil {
 		errs := utils.ParseValidatorErr(err)
-		c.SendStatus(http.StatusBadRequest)
+		c.Status(http.StatusBadRequest)
 		return c.JSON(resp.Set("Invalid data", nil).AddErrValidation(errs))
 	}
 
 	result, err := h.ucase.CreateCartItem(ctx, claims.UserID, *req)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
-	return c.JSON(resp.Set("success", result))
+	return c.Status(http.StatusCreated).JSON(resp.Set("success", result))
 }
 
 // DeleteCartItem delete product from cart handler
@@ -86,8 +85,7 @@ func (h *ApiHandler) DeleteCartItem(c *fiber.Ctx) error {
 	err = h.ucase.DeleteCartItem(ctx, claims.UserID, cartID)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	return c.JSON(resp.Set("success", nil))
@@ -123,8 +121,7 @@ func (h *ApiHandler) GetListCartItem(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	resp.AddMeta(page, count, total)

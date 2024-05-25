@@ -44,8 +44,7 @@ func (h *ApiHandler) Register(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	accessToken, err := h.tokenManager.GenerateJwtToken(token.Claims{
@@ -70,7 +69,7 @@ func (h *ApiHandler) Register(c *fiber.Ctx) error {
 // @Accept			json
 // @Produce			json
 // @Param 			json	body		entity.InUserLogin	true	"Login data"
-// @Success			201		{object}	utils.Response
+// @Success			200		{object}	utils.Response
 // @Failure			400		{object}	utils.Response
 // @Failure			500		{object}	utils.Response
 // @Router	/v1/users/login [post]
@@ -94,8 +93,7 @@ func (h *ApiHandler) Login(c *fiber.Ctx) error {
 	result, err := h.ucase.Login(ctx, *req)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	accessToken, err := h.tokenManager.GenerateJwtToken(token.Claims{
@@ -135,8 +133,7 @@ func (h *ApiHandler) GetLoggedInUser(c *fiber.Ctx) error {
 	result, err := h.ucase.GetUser(ctx, claims.UserID)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	return c.JSON(resp.Set("success", fiber.Map{

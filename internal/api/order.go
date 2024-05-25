@@ -63,10 +63,10 @@ func (h *ApiHandler) CreateOrder(c *fiber.Ctx) error {
 	result, err := h.ucase.CreateOrder(ctx, claims.UserID, *req)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
+	c.Status(http.StatusCreated)
 	return c.JSON(resp.Set("success", result))
 }
 
@@ -102,8 +102,7 @@ func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 	orderDetail, err := h.ucase.GetOrder(ctx, claims.UserID, orderID)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	orderItemList, _, err := h.ucase.GetListOrderItem(ctx, claims.UserID, orderID, entity.InGetListOrderItem{
@@ -112,15 +111,13 @@ func (h *ApiHandler) GetOrder(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	paymentDetail, err := h.ucase.GetOrderPayment(ctx, orderID)
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	return c.JSON(resp.Set("success", fiber.Map{
@@ -160,8 +157,7 @@ func (h *ApiHandler) GetListOrder(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	resp.AddMeta(page, count, total)

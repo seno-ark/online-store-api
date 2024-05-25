@@ -30,8 +30,7 @@ func (h *ApiHandler) GetListCategory(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		status, msg := utils.ErrStatusCode(err)
-		c.SendStatus(status)
-		return c.JSON(resp.Set(msg, nil))
+		return c.Status(status).JSON(resp.Set(msg, nil))
 	}
 
 	resp.AddMeta(page, count, total)
