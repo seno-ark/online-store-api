@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"online-store/pkg/config"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -41,11 +42,11 @@ func (c *Cache) Set(ctx context.Context, key string, value []byte, expiration ti
 	return nil
 }
 
-func (c *Cache) Get(ctx context.Context, key string) (*string, error) {
+func (c *Cache) Get(ctx context.Context, key string) (string, error) {
 	val, err := c.rdb.Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return nil, nil
+			return "", nil
 		}
 
 		slog.Error(
@@ -53,20 +54,31 @@ func (c *Cache) Get(ctx context.Context, key string) (*string, error) {
 			"key", key,
 			"err", err,
 		)
-		return nil, err
+		return "", err
 	}
 
-	return &val, nil
+	return val, nil
 }
 
 func (c *Cache) Del(ctx context.Context, key string) error {
-	err := c.rdb.Del(ctx, key).Err()
-	if err != nil {
-		slog.Error(
-			"Failed to delete cache",
-			"key", key,
-		)
-		return err
+	keys := []string{}
+
+	if strings.Contains(key, "*") {
+		keyList := c.rdb.Keys(ctx, key)
+		keys = append(keys, keyList.Val()...)
+	} else {
+		keys = []string{key}
+	}
+
+	for _, k := range keys {
+		err := c.rdb.Del(ctx, k).Err()
+		if err != nil {
+			slog.Error(
+				"Failed to delete cache",
+				"key", key,
+			)
+			return err
+		}
 	}
 
 	return nil

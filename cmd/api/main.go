@@ -32,8 +32,8 @@ func main() {
 	utils.RegisterCustomValidator(validate)
 
 	repo := repository.NewRepository(db)
-	ucase := usecase.NewUsecase(repo)
-	handler := api.NewApiHandler(ucase, validate, cache, tokenManager)
+	ucase := usecase.NewUsecase(repo, cache)
+	handler := api.NewApiHandler(conf, ucase, validate, tokenManager)
 
 	app := fiber.New()
 	app.Use(logger.New(logger.Config{

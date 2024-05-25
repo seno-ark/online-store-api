@@ -2,12 +2,15 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"online-store/internal/entity"
 	"online-store/internal/repository"
 	"online-store/pkg/constant"
 	"online-store/pkg/utils"
+	"strconv"
 )
 
 func (u *Usecase) CreateOrder(ctx context.Context, userID string, arg entity.InCreateOrder) (*entity.Order, error) {
@@ -113,7 +116,64 @@ func (u *Usecase) GetOrder(ctx context.Context, userID, orderID string) (*entity
 }
 
 func (u *Usecase) GetListOrder(ctx context.Context, userID string, arg entity.InGetListOrder) ([]entity.Order, int64, error) {
-	return u.repo.GetListOrder(ctx, userID, arg)
+	var (
+		result []entity.Order
+		total  int64
+		err    error
+	)
+
+	cacheKeyCount := fmt.Sprintf(constant.CacheKeyListUserOrderCount, userID)
+	cacheKeyList := fmt.Sprintf(constant.CacheKeyListUserOrder, userID, arg.Limit, arg.Offset)
+
+	cacheData, _ := u.cache.Get(ctx, cacheKeyCount)
+	if cacheData != "" {
+		total, err = strconv.ParseInt(cacheData, 10, 64)
+		if err != nil {
+			slog.Error(
+				"Failed to GetListOrder Parse Cache",
+				slog.Any("err", err),
+				slog.Any("cacheKey", cacheKeyCount),
+				slog.Any("cacheData", cacheData),
+			)
+			return nil, 0, utils.NewErrInternalServer("Failed to parse cache data")
+		}
+
+		cacheData, _ = u.cache.Get(ctx, cacheKeyList)
+		if cacheData != "" {
+			err = json.Unmarshal([]byte(cacheData), &result)
+			if err != nil {
+				slog.Error(
+					"Failed to GetListOrder Parse Cache",
+					slog.Any("err", err),
+					slog.Any("cacheKey", cacheKeyList),
+					slog.Any("cacheData", cacheData),
+				)
+				return nil, 0, utils.NewErrInternalServer("Failed to parse cache data")
+			}
+
+			return result, total, nil
+		}
+	}
+
+	result, total, err = u.repo.GetListOrder(ctx, userID, arg)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	jsonList, err := json.Marshal(result)
+	if err != nil {
+		slog.Error(
+			"Failed to GetListOrder Marshal Cache",
+			slog.Any("err", err),
+			slog.Any("data", result),
+		)
+		return nil, 0, err
+	}
+
+	_ = u.cache.Set(ctx, cacheKeyCount, []byte(fmt.Sprintf("%d", total)), constant.DefaultExpiration)
+	_ = u.cache.Set(ctx, cacheKeyList, jsonList, constant.DefaultExpiration)
+
+	return result, total, nil
 }
 
 func (u *Usecase) GetListOrderItem(ctx context.Context, userID string, orderID string, arg entity.InGetListOrderItem) ([]entity.OutGetOrderItem, int64, error) {
@@ -122,5 +182,61 @@ func (u *Usecase) GetListOrderItem(ctx context.Context, userID string, orderID s
 		return nil, 0, err
 	}
 
-	return u.repo.GetListOrderItem(ctx, orderID, arg)
+	var (
+		result []entity.OutGetOrderItem
+		total  int64
+	)
+
+	cacheKeyCount := fmt.Sprintf(constant.CacheKeyListOrderItemCount, orderID)
+	cacheKeyList := fmt.Sprintf(constant.CacheKeyListOrderItem, orderID, arg.Limit, arg.Offset)
+
+	cacheData, _ := u.cache.Get(ctx, cacheKeyCount)
+	if cacheData != "" {
+		total, err = strconv.ParseInt(cacheData, 10, 64)
+		if err != nil {
+			slog.Error(
+				"Failed to GetListOrderItem Parse Cache",
+				slog.Any("err", err),
+				slog.Any("cacheKey", cacheKeyCount),
+				slog.Any("cacheData", cacheData),
+			)
+			return nil, 0, utils.NewErrInternalServer("Failed to parse cache data")
+		}
+
+		cacheData, _ = u.cache.Get(ctx, cacheKeyList)
+		if cacheData != "" {
+			err = json.Unmarshal([]byte(cacheData), &result)
+			if err != nil {
+				slog.Error(
+					"Failed to GetListOrderItem Parse Cache",
+					slog.Any("err", err),
+					slog.Any("cacheKey", cacheKeyList),
+					slog.Any("cacheData", cacheData),
+				)
+				return nil, 0, utils.NewErrInternalServer("Failed to parse cache data")
+			}
+
+			return result, total, nil
+		}
+	}
+
+	result, total, err = u.repo.GetListOrderItem(ctx, orderID, arg)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	jsonList, err := json.Marshal(result)
+	if err != nil {
+		slog.Error(
+			"Failed to GetListOrderItem Marshal Cache",
+			slog.Any("err", err),
+			slog.Any("data", result),
+		)
+		return nil, 0, err
+	}
+
+	_ = u.cache.Set(ctx, cacheKeyCount, []byte(fmt.Sprintf("%d", total)), constant.DefaultExpiration)
+	_ = u.cache.Set(ctx, cacheKeyList, jsonList, constant.DefaultExpiration)
+
+	return result, total, nil
 }

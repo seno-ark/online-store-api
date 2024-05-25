@@ -1,11 +1,18 @@
 package usecase
 
-import "online-store/internal/repository"
+import (
+	"online-store/internal/repository"
+	"online-store/pkg/cache"
+)
 
 type Usecase struct {
-	repo *repository.Repository
+	repo  *repository.Repository
+	cache *cache.Cache
 }
 
-func NewUsecase(repo *repository.Repository) *Usecase {
-	return &Usecase{repo: repo}
+func NewUsecase(repo *repository.Repository, cache *cache.Cache) *Usecase {
+	return &Usecase{
+		repo:  repo,
+		cache: cache,
+	}
 }

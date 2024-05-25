@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"online-store/internal/entity"
 	"online-store/pkg/utils"
@@ -18,8 +17,6 @@ func (h *ApiHandler) PaymentWebhook(c *fiber.Ctx) error {
 		c.SendStatus(http.StatusBadRequest)
 		return c.JSON(resp.Set("Invalid data", nil))
 	}
-
-	fmt.Println("REQ", req)
 
 	err := h.validate.Struct(req)
 	if err != nil {

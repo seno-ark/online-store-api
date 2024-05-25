@@ -2,7 +2,6 @@ package api
 
 import (
 	"online-store/internal/usecase"
-	"online-store/pkg/cache"
 	"online-store/pkg/config"
 	"online-store/pkg/token"
 
@@ -14,7 +13,6 @@ type ApiHandler struct {
 	conf         *config.Config
 	ucase        *usecase.Usecase
 	validate     *validator.Validate
-	cache        *cache.Cache
 	tokenManager *token.TokenManager
 }
 
@@ -22,14 +20,12 @@ func NewApiHandler(
 	conf *config.Config,
 	ucase *usecase.Usecase,
 	validate *validator.Validate,
-	cache *cache.Cache,
 	tokenManager *token.TokenManager,
 ) *ApiHandler {
 	return &ApiHandler{
 		conf:         conf,
 		ucase:        ucase,
 		validate:     validate,
-		cache:        cache,
 		tokenManager: tokenManager,
 	}
 }
