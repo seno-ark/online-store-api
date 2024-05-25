@@ -1,3 +1,3 @@
 # online-store-api
 
-Synapsis technical test
+Synapsis Backend Challenge
